@@ -1,5 +1,9 @@
 public class NBody {
-
+    /**
+     *  Read radius from file
+     *  @param String file name
+     *  @return a double corresponding to the radius of the universe in that file
+     */
     public static double readRadius (String fileName) {
         In in = new In(fileName);
         int nouse = in.readInt();
@@ -9,11 +13,11 @@ public class NBody {
 
     public static Planet[] readPlanets(String fileName) {
         In in = new In(fileName);
-        int N = in.readInt();
+        int n = in.readInt();
         double radius = in.readDouble();
 
-        Planet[] result = new Planet[N];
-        for (int i = 0; i < N; i++) {
+        Planet[] result = new Planet[n];
+        for (int i = 0; i < n; i++) {
             result[i] = new Planet(in.readDouble(), in.readDouble(), in.readDouble(), in.readDouble(), in.readDouble(),in.readString());
         }
         return result;
@@ -29,6 +33,31 @@ public class NBody {
         StdDraw.setScale(-radius, radius);
         StdDraw.clear(); //Clears the screen to the default color (white).
         StdDraw.picture(0, 0, "images/starfield.jpg");
+
+        /* Animation */
+        StdDraw.enableDoubleBuffering();
+        double time = 0.0;
+        while(time < T) {
+            double[] xForces = new double[planets.length];
+            double[] yForces = new double[planets.length];
+            for(int i=0; i<planets.length; i++) {
+                xForces[i] = planets[i].calcNetForceExertedByX(planets);
+                yForces[i] = planets[i].calcNetForceExertedByY(planets);
+            }
+            for(int i=0; i<planets.length; i++) {
+                planets[i].update(dt, xForces[i], yForces[i]);
+            }
+
+            StdDraw.picture(0, 0, "images/starfield.jpg");
+
+            for (Planet p : planets) {
+                p.draw();
+            }
+            StdDraw.show();
+            StdDraw.pause(10);
+            time += dt;
+        }
+
 
         StdOut.printf("%d\n", planets.length);
         StdOut.printf("%.2e\n", radius);
